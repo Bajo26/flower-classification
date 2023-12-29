@@ -8,7 +8,7 @@ from tensorflow.keras.applications.inception_v3 import preprocess_input
 app = Flask(__name__)
 
 # Load your trained model (replace 'your_model.h5' with the actual model file)
-model = load_model(r'C:/Users/fbajo/OneDrive/Desktop/flower health classification/model/CNNFLOWER.h5')
+model = load_model(r'CNNFLOWER.h5')
 
 # Define the target size expected by the model
 target_size = (160, 160)
