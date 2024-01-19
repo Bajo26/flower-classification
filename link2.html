@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Plant Health Classification</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('https://127.0.0.1:8080/static/images/BACKGROUND.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: #000000;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        h1 {
+            color: yellow;
+            font-size: 30px;
+            border-radius: 20px;
+            align-items: center;
+            width: 700px;
+            height: 50px;
+            margin-bottom: 20px;
+            -webkit-text-stroke: 2px green;
+            text-stroke: 2px green;
+        }
+
+        button {
+            background-color: #006400;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #fff;
+            background-color: #006400;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        #result,
+        #description {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            display: inline-block;
+            font-size: 18px;
+        }
+
+        img {
+            max-width: 50%;
+            max-height: 300px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 80%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            display: inline-block;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .spinner {
+            border: 8px solid #FFFFFF;
+            border-top: 8px solid #000000;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Additional styles for camera feed */
+        #cameraContainer {
+            position: relative;
+            width: 50%;
+            margin-top: 20px;
+        }
+
+        #cameraFeed {
+            width: 100%;
+        }
+
+        #capturedImage {
+            max-width: 100%;
+            margin-top: 20px;
+            margin-right: -50%;
+            display: none;
+        }
+
+        /* Additional styles for camera buttons */
+        #cameraButtons {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin-top: 20px;
+        }
+
+        #captureButton,
+        #switchCameraButton,
+        #goBackButton {
+            background-color: #006400;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #goBackButton:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Flower Plant Health<br> Classification</h1>
+
+    <div id="cameraContainer">
+        <video id="cameraFeed" autoplay></video>
+        <img id="capturedImage">
+    </div>
+
+    <div id="cameraButtons">
+        <button type="button" id="switchCameraButton">Camera</button>
+        <button type="button" id="captureButton">Capture Image</button>
+    </div>
+    <a href="https://127.0.0.1:8080/link1" class="button">Go Back to Upload Image</a>
+
+    <script>
+        const captureButton = document.getElementById('captureButton');
+        const switchCameraButton = document.getElementById('switchCameraButton');
+        const goBackButton = document.getElementById('goBackButton');
+        const cameraFeed = document.getElementById('cameraFeed');
+        const capturedImage = document.getElementById('capturedImage');
+
+        // Add event listener for camera capture button
+        captureButton.addEventListener('click', captureImageFromCamera);
+
+        // Add event listener for switching camera
+        switchCameraButton.addEventListener('click', switchCamera);
+
+        // Add event listener for going back to camera
+        goBackButton.addEventListener('click', goBackToCamera);
+
+        // Enable or disable the send button based on image availability
+        cameraFeed.addEventListener('play', () => {
+            goBackButton.disabled = true;
+        });
+
+        cameraFeed.addEventListener('pause', () => {
+            goBackButton.disabled = false;
+        });
+
+        async function captureImageFromCamera() {
+            try {
+                // Capture a frame from the video feed
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = cameraFeed.videoWidth;
+                canvas.height = cameraFeed.videoHeight;
+                context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+
+                // Convert the canvas content to a blob
+                const blob = await new Promise(resolve => canvas.toBlob(resolve));
+
+                // Save the captured image locally
+                saveImageLocally(blob);
+
+                // Display the captured image
+                capturedImage.src = URL.createObjectURL(blob);
+                capturedImage.style.display = 'inline-block';
+
+                // Hide the camera feed
+                cameraFeed.pause();
+                cameraFeed.style.display = 'none';
+
+                // Enable the "Go Back to Camera" button and disable the "Send for Classification" button
+                goBackButton.disabled = true;
+            } catch (error) {
+                console.error('Error capturing image:', error);
+            }
+        }
+
+        function saveImageLocally(blob) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'captured-image.png';
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        async function switchCamera() {
+            const currentStream = cameraFeed.srcObject;
+            if (currentStream) {
+                const tracks = currentStream.getTracks();
+                tracks.forEach(track => track.stop());
+            }
+
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                const currentDeviceId = cameraFeed.srcObject?.getTracks()[0]?.getSettings().deviceId;
+                const nextDevice = videoDevices.find(device => device.deviceId !== currentDeviceId);
+
+                if (nextDevice) {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: nextDevice.deviceId } });
+
+                    cameraFeed.srcObject = stream;
+                    cameraFeed.play();
+                    cameraFeed.style.display = 'block';
+
+                    capturedImage.style.display = 'none';
+
+                    goBackButton.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error switching camera:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>

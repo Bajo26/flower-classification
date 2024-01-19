@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Plant Health Classification</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('https://127.0.0.1:8080/static/images/BACKGROUND.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: #000000;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        #logo {
+	    background-color: #006400;
+	    border-radius: 20px;
+            width: 600px; 
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: yellow;
+	    font-size: 30px;
+	    border-radius: 20px;
+	    align-items: center;
+	    width: 700px;
+            height: 100px;
+            margin-bottom: 20px;
+	    -webkit-text-stroke: 2px green;
+	    text-stroke: 2px green;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            background-color: #006400;
+            color: #fff;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+            margin-left: -100px;
+        }
+
+        button {
+            background-color: #006400;
+            color: #fff;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: -48px;
+            postion: static;
+            margin-left: 160px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #fff;
+            background-color: #006400;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-top: 50px;
+            display: inline-block;
+        }
+
+        #loading {
+            border: 8px solid #FFFFFF;
+            border-top: 8px solid #000000;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            display: none; /* Hidden by default */
+        }
+
+        #fileDisplay {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #fff; /* Set text color to be visible on the background */
+        }
+
+        #selectedImage {
+            width: 300px;
+            max-height: 300px;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: none;
+        }
+
+        #errorMessage {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #percentageTable,
+        #predictionTable {
+            margin-top: -5%;
+            width: 30%;
+            background-color: #fff; /* Set background color for better readability */
+            border-radius: 10px;
+            padding: 20px;
+            display: none;
+        }
+
+        #percentageTable td,
+        #predictionTable td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media only screen and (max-width: 600px) {
+            /* Adjust styles for smaller screens */
+            #percentageTable,
+            #predictionTable {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Flower Plant Health <br>Classification</h1>
+    <form id="uploadForm">
+        <label for="file">Choose an image</label>
+        <button type="submit">Upload</button>
+        <input type="file" name="file" id="file" accept="image/*" onchange="displayFileName()">
+        <div id="fileDisplay"></div>
+        <img id="selectedImage" style="display: none;">
+        
+    </form>
+    
+    <div id="loading" class="spinner"></div>
+    <div id="errorMessage"></div>
+    <table id="percentageTable">
+        <tr>
+            <td>Prediction Percentage:</td>
+            <td id="percentageValue"></td>
+        </tr>
+    </table>
+    <table id="predictionTable">
+        <tr>
+            <td>Prediction:</td>
+            <td id="predictionValue"></td>
+        </tr>
+    </table>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+
+        uploadForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            // Call the classifyImage function
+            await classifyImage(formData);
+        });
+
+        function displayFileName() {
+            const fileInput = document.getElementById('file');
+            const fileDisplay = document.getElementById('fileDisplay');
+            const selectedImage = document.getElementById('selectedImage');
+
+            if (fileInput.files.length > 0) {
+                fileDisplay.innerText = 'Selected File: ' + fileInput.files[0].name;
+
+                // Display the selected image
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    selectedImage.src = e.target.result;
+                    selectedImage.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                fileDisplay.innerText = '';
+                selectedImage.src = '';
+                selectedImage.style.display = 'none';
+            }
+        }
+
+        async function classifyImage(formData) {
+            // Display loading spinner
+            document.getElementById('loading').style.display = 'inline-block';
+            document.getElementById('errorMessage').innerText = ''; // Clear previous error message
+
+            // Hide previous results
+            document.getElementById('percentageTable').style.display = 'none';
+            document.getElementById('predictionTable').style.display = 'none';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to classify image.');
+                }
+
+                const data = await response.json();
+
+                // Check if the result is null (blurred or not a flower)
+                if (data.error) {
+                    // Display error message
+                    document.getElementById('errorMessage').innerText = data.error;
+                    console.error('Error during classification:', data.error);
+                } else {
+                    // Hide loading spinner
+                    document.getElementById('loading').style.display = 'none';
+
+                    // Update the percentage and prediction tables
+                    
+
+                    document.getElementById('predictionValue').innerText = data.prediction;
+                    document.getElementById('predictionTable').style.display = 'inline-block';
+                }
+            } catch (error) {
+                console.error('Error during classification:', error);
+                // Handle the error (e.g., display an error message)
+            }
+        }
+    </script>
+    <a href="https://127.0.0.1:8080/link2" >Use Camera</a>
+    <a href="https://127.0.0.1:8080/">Go Back to Front Page</a>
+
+</body>
+
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Plant Health Classification</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('https://127.0.0.1:8080/static/images/BACKGROUND.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: #000000;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        #logo {
+            background-color: #006400;
+            border-radius: 20px;
+            width: 600px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+        color: yellow;
+	    font-size: 30px;
+	    border-radius: 20px;
+	    align-items: center;
+	    width: 700px;
+        height: 100px;
+        margin-bottom: 20px;
+	    -webkit-text-stroke: 2px green;
+	    text-stroke: 2px green;
+        }
+
+        .circle {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 20px;
+            background-color: #006400;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 10px;
+        }
+
+        .image-container {
+            display: flex;
+            align-items: space-between;
+            justify-content: center;
+            margin: 50px;
+            margin-bottom: 50px;
+            /* Add space between images and buttons */
+        }
+
+        /* Tutorial overlay styles */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .tutorial-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .tutorial-buttons {
+            margin-top: 20px;
+        }
+
+        .tutorial-close {
+            background-color: #006400;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Additional styles for tutorial steps */
+        .tutorial-step {
+            margin-top: 20px;
+        }
+
+        .tutorial-start {
+            background-color: #006400;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Flower Plant Health<br> Classification</h1>
+    
+    <div class="image-container">
+        <img src="https://127.0.0.1:8080/static/images/image1.jpg" alt="Image 1" class="circle">
+        <img src="https://127.0.0.1:8080/static/images/image2.jpg" alt="Image 2" class="circle">
+    </div>
+
+    <a href="https://127.0.0.1:8080/link1" class="button">Start Image Classification</a>
+
+    <div id="tutorialOverlay" class="overlay" style="font-size: 12px;">
+        <div class="tutorial-content">
+            <h2>Welcome to the Flower Plant Health Classification Tutorial</h2>
+            <p>Follow these steps to learn how to use the application:</p>
+            <div class="tutorial-step">
+                <h3>Capture Image</h3>
+                <p>Click the "Capture Image" button to capture a frame from the camera feed.</p>
+            </div>
+            <div class="tutorial-step">
+                <h3>Switch Camera</h3>
+                <p>Use the "Switch Camera" button to switch between available cameras.</p>
+            </div>
+            <div class="tutorial-step">
+                <h3>Uploading from Local File</h3>
+                <p>Click the "Go To Upload Local Image" button to choose an image from your local files and upload it.</p>
+            </div>
+            <div class="tutorial-step">
+                <h3>Classifying the Uploaded Image</h3>
+                <p>After uploading the image, the application will automatically classify the plant health.</p>
+            </div>
+            <div class="tutorial-buttons">
+                <button class="tutorial-close" onclick="closeTutorial()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('tutorialOverlay').style.display = 'flex';
+
+        function closeTutorial() {
+            document.getElementById('tutorialOverlay').style.display = 'none';
+        }
+    </script>
+    <button class="tutorial-start" onclick="startTutorial()">Start Tutorial</button>
+</body>
+
+</html>
